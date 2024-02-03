@@ -73,7 +73,11 @@ Some obvious performance tuning approach would be the following.
 - Run the service on infrastructure meant for higher in memory compute.
 - Limit complexity of outcomes.
 
+### Roadmap
 
+- Add custom outcomes
+    - REST API Call
+- Add support for JSON based config.
 
 
 

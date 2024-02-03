@@ -11,7 +11,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ServerHeader: "Rulent Server",
+	})
 	config := models.Config{}
 	yamlFile := "events.yaml"
 	config.ParseYAML(yamlFile)
