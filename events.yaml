@@ -1,0 +1,47 @@
+events:
+  purchase:
+    rules-operator: "or"
+    rules:
+      - rule: "Name Check"
+        conditions:
+          - "person.name": "James"
+          - "person.lname": "Wright"
+      - rule: "Age Check"
+        conditions:
+          - "person.age": ">40"
+    outcomes:
+      - name: "outcome1"
+        action: "email"
+        mode : "async"
+        parameters:
+          recipients: ["user@example.com"]
+          subject: "Event 1 Triggered"
+      - name: "outcome2"
+        action: "log"
+        mode : "sync"
+        parameters:
+          message: "Event 1 was triggered"
+          level: "info"
+  click:
+    rules-operator: "and"
+    rules:
+      - rule: "Name Check"
+        conditions:
+          - "person.name": "James"
+      - rule: "Age Check"
+        conditions:
+          - "person.age": "42"
+    outcomes:
+      - name: "outcome1"
+        action: "email"
+        mode : "sync"
+        parameters:
+          recipients: ["user@example.com"]
+          subject: "Click Event Triggered"
+      - name: "outcome2"
+        action: "log"
+        mode : "sync"
+        parameters:
+          message: "Event 1 was triggered"
+          level: "info"
+
