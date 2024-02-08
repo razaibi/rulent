@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"sync"
 
@@ -11,12 +12,21 @@ import (
 )
 
 func main() {
+
+	configPathPtr := flag.String("config", "events.yaml", "path to config file")
+	flag.Parse() // Parse the flags
+
+	// Dereference the pointer to get the actual config path
+	configFilePath := *configPathPtr
+
 	app := fiber.New(fiber.Config{
 		ServerHeader: "Rulent Server",
 	})
 	config := models.Config{}
-	yamlFile := "events.yaml"
-	config.ParseYAML(yamlFile)
+	err := config.ParseConfig(configFilePath)
+	if err != nil {
+		log.Fatalf("Error parsing config file: %v", err)
+	}
 
 	errorChan := make(chan error)
 	var wg sync.WaitGroup
@@ -30,7 +40,7 @@ func main() {
 		}
 	}()
 
-	app.Get("/reload", handlers.ReloadHandler(&config, yamlFile))
+	app.Get("/reload", handlers.ReloadHandler(&config, configFilePath))
 	log.Fatal(app.Listen(":8081"))
 
 	// Close the error channel when all goroutines are done

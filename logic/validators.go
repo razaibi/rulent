@@ -1,7 +1,10 @@
 package logic
 
 import (
+	"fmt"
+	"reflect"
 	"rulent/models"
+	"strconv"
 	"strings"
 )
 
@@ -46,7 +49,6 @@ func validateEvent(payload map[string]interface{}, event models.Event) bool {
 	if event.RulesOperator == "and" {
 		return allRulesSatisfied // For 'and', return true only if all rules are satisfied
 	}
-
 	return false // Default return false for 'or' if none of the rules are satisfied
 }
 
@@ -69,7 +71,23 @@ func validateField(current map[string]interface{}, keys []string, expectedValue 
 
 	key := keys[0]
 	if len(keys) == 1 {
-		return current[key] == expectedValue
+		actualValue, ok := current[key]
+		if !ok {
+			return false // Key does not exist
+		}
+
+		switch v := expectedValue.(type) {
+		case string:
+			// Check for conditions starting with > or <
+			if strings.HasPrefix(v, ">") ||
+				strings.HasPrefix(v, "<") ||
+				strings.HasPrefix(v, "!") {
+				return compareValues(v, actualValue)
+			}
+		}
+
+		// Fallback to direct equality if not a special condition
+		return reflect.DeepEqual(actualValue, expectedValue)
 	}
 
 	next, ok := current[key].(map[string]interface{})
@@ -77,4 +95,54 @@ func validateField(current map[string]interface{}, keys []string, expectedValue 
 		return false
 	}
 	return validateField(next, keys[1:], expectedValue)
+}
+
+func compareValues(condition string, actualValue interface{}) bool {
+	operator := condition[:1]
+	expectedValStr := condition[1:]
+
+	// Convert the expected value string to float64 for comparison
+	expectedVal, err := strconv.ParseFloat(expectedValStr, 64)
+	if err != nil {
+		fmt.Printf("Error parsing expected value '%s' to float64: %v\n", expectedValStr, err)
+		return false
+	}
+
+	var actualValFloat float64
+	switch actual := actualValue.(type) {
+	case float64:
+		actualValFloat = actual
+	case float32:
+		actualValFloat = float64(actual)
+	case int:
+		actualValFloat = float64(actual)
+	case int32:
+		actualValFloat = float64(actual)
+	case int64:
+		actualValFloat = float64(actual)
+	case string:
+		// Try to convert a string to float64
+		var convErr error
+		actualValFloat, convErr = strconv.ParseFloat(actual, 64)
+		if convErr != nil {
+			fmt.Printf("Error converting string '%s' to float64: %v\n", actual, convErr)
+			return false
+		}
+	default:
+		fmt.Printf("Actual value '%v' is of type %T, which is not supported for comparison\n", actualValue, actualValue)
+		return false
+	}
+
+	// Perform the comparison based on the operator
+	switch operator {
+	case ">":
+		return actualValFloat > expectedVal
+	case "<":
+		return actualValFloat < expectedVal
+	case "!":
+		return actualValFloat != expectedVal
+	default:
+		fmt.Println("Unsupported operator:", operator)
+		return false
+	}
 }

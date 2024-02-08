@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ReloadHandler(config *models.Config, yamlFile string) fiber.Handler {
+func ReloadHandler(config *models.Config, configFilePath string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		err := config.ReloadYAML(yamlFile)
+		err := config.ReloadConfig(configFilePath)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to reload conditions",
