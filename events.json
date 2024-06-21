@@ -1,5 +1,36 @@
 {
     "events": {
+      "login": {
+        "rules-operator": "or",
+        "rules": [
+          {
+            "rule": "Role Check",
+            "conditions": [
+              {
+                "person.role": "in:admin,superuser,manager"
+              }
+            ]
+          },
+          {
+            "rule": "Location Check",
+            "conditions": [
+              {
+                "person.location": "in:USA,Canada,UK"
+              }
+            ]
+          }
+        ],
+        "outcomes": [
+          {
+            "name": "outcome1",
+            "action": "log",
+            "mode": "async",
+            "parameters": {
+              "message": "A privileged user has logged in"
+            }
+          }
+        ]
+      },
       "purchase": {
         "rules-operator": "or",
         "rules": [
