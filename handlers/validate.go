@@ -25,11 +25,14 @@ func ValidateHandler(config *models.Config, errorChan chan<- error, wg *sync.Wai
 
 			return c.JSON(fiber.Map{
 				"status":   "success",
+				"desc":     "Found matches.",
 				"outcomes": outcomes,
 			})
 		} else {
 			return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-				"error": "Validation failed",
+				"status":   "failure",
+				"desc":     "Could not find matches.",
+				"outcomes": nil,
 			})
 		}
 	}

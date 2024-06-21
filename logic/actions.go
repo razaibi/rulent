@@ -14,12 +14,10 @@ var actionFuncs = map[string]ActionFunc{
 }
 
 func emailAction(payload map[string]interface{}, parameters map[string]interface{}) error {
-	fmt.Println("Email action.")
 	return nil
 }
 
 func logAction(payload map[string]interface{}, parameters map[string]interface{}) error {
-	fmt.Println("Logging action.")
 	return nil
 }
 

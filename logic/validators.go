@@ -78,10 +78,11 @@ func validateField(current map[string]interface{}, keys []string, expectedValue 
 
 		switch v := expectedValue.(type) {
 		case string:
-			// Check for conditions starting with > or <
+			// Check for conditions starting with > or < or in:
 			if strings.HasPrefix(v, ">") ||
 				strings.HasPrefix(v, "<") ||
-				strings.HasPrefix(v, "!") {
+				strings.HasPrefix(v, "!") ||
+				strings.HasPrefix(v, "in:") {
 				return compareValues(v, actualValue)
 			}
 		}
@@ -98,6 +99,17 @@ func validateField(current map[string]interface{}, keys []string, expectedValue 
 }
 
 func compareValues(condition string, actualValue interface{}) bool {
+	if strings.HasPrefix(condition, "in:") {
+		expectedValuesStr := strings.TrimPrefix(condition, "in:")
+		expectedValues := strings.Split(expectedValuesStr, ",")
+		for _, ev := range expectedValues {
+			if reflect.DeepEqual(strings.TrimSpace(ev), actualValue) {
+				return true
+			}
+		}
+		return false
+	}
+
 	operator := condition[:1]
 	expectedValStr := condition[1:]
 
